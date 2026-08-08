@@ -1,32 +1,42 @@
 # Python
+
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyc
 
 # Virtual environment
+
 venv/
 .venv/
 backend/venv/
 
 # Generated files
+
 backend/uploads/
+backend/history.json
 
 # Node
+
 node_modules/
 frontend/node_modules/
 
 # Vite
+
 .vite/
 frontend/node_modules/.vite/
 
 # Environment variables
+
 .env
 .env.*
 
 # IDE
+
 .vscode/
 .idea/
 
 # OS
+
 .DS_Store
 Thumbs.db
