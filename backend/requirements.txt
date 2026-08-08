@@ -44,3 +44,4 @@ urllib3==2.7.0
 uvicorn==0.52.1
 wheel==0.47.0
 wrapt==2.3.0
+opencv-python==4.12.0.88

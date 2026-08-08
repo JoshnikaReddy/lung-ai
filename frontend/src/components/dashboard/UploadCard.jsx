@@ -3,7 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { predictXray } from "../../services/api";
 
-function UploadCard() {
+function UploadCard({ setPrediction }) {
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -36,11 +36,11 @@ function UploadCard() {
 
       const result = await predictXray(file);
 
-      console.log("Prediction Result:", result);
+      console.log(result);
 
-      alert(
-        `Prediction: ${result.prediction}\nConfidence: ${result.confidence}%`
-      );
+      // Send prediction to Dashboard
+      setPrediction(result);
+
     } catch (error) {
       console.error(error);
       alert("Prediction failed. Please check if the backend is running.");
@@ -51,6 +51,7 @@ function UploadCard() {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8">
+
       <h2 className="text-3xl font-bold mb-6">
         Upload Chest X-ray
       </h2>
@@ -92,6 +93,7 @@ function UploadCard() {
       >
         {loading ? "Analyzing..." : "Analyze X-ray"}
       </button>
+
     </div>
   );
 }

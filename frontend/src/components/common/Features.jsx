@@ -19,7 +19,7 @@ function Features() {
     },
     {
       icon: <FaHeartbeat className="text-5xl text-blue-600" />,
-      title: "4 Disease Detection",
+      title: " Disease Detection",
       description: "COVID-19, Pneumonia, Tuberculosis and Normal."
     },
     {

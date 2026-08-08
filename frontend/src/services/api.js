@@ -14,5 +14,12 @@ export const predictXray = async (file) => {
     },
   });
 
+  // Convert heatmap path to full URL
+  if (response.data.heatmap) {
+    response.data.heatmap =
+      "http://127.0.0.1:8000/" +
+      response.data.heatmap.replace(/\\/g, "/");
+  }
+
   return response.data;
 };
