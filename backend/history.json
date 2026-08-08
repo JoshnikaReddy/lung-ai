@@ -1,0 +1,107 @@
+[
+    {
+        "prediction": "COVID",
+        "confidence": 97.62,
+        "probabilities": [
+            0.9762462973594666,
+            0.0023322144988924265,
+            0.0166994147002697,
+            0.004722146783024073
+        ],
+        "image": "uploads\\02 img .png",
+        "heatmap": "uploads\\heatmap.png",
+        "report": "uploads\\LungAI_Report.pdf",
+        "date": "08-08-2026",
+        "time": "18:20:26"
+    },
+    {
+        "prediction": "COVID",
+        "confidence": 83.45,
+        "probabilities": [
+            0.8344764709472656,
+            0.0006810700288042426,
+            0.00045843381667509675,
+            0.16438409686088562
+        ],
+        "image": "uploads\\04 img.png",
+        "heatmap": "uploads\\heatmap.png",
+        "report": "uploads\\LungAI_Report.pdf",
+        "date": "08-08-2026",
+        "time": "18:20:56"
+    },
+    {
+        "prediction": "COVID",
+        "confidence": 83.45,
+        "probabilities": [
+            0.8344764709472656,
+            0.0006810700288042426,
+            0.00045843381667509675,
+            0.16438409686088562
+        ],
+        "image": "uploads\\04 img.png",
+        "heatmap": "uploads\\heatmap.png",
+        "report": "uploads\\LungAI_Report.pdf",
+        "date": "08-08-2026",
+        "time": "18:21:01"
+    },
+    {
+        "prediction": "Pneumonia",
+        "confidence": 63.01,
+        "probabilities": [
+            0.0010812815744429827,
+            0.36607784032821655,
+            0.6300534605979919,
+            0.002787408186122775
+        ],
+        "image": "uploads\\03 img .png",
+        "heatmap": "uploads\\heatmap.png",
+        "report": "uploads\\LungAI_Report.pdf",
+        "date": "08-08-2026",
+        "time": "18:21:12"
+    },
+    {
+        "prediction": "COVID",
+        "confidence": 83.45,
+        "probabilities": [
+            0.8344764709472656,
+            0.0006810700288042426,
+            0.00045843381667509675,
+            0.16438409686088562
+        ],
+        "image": "uploads\\04 img.png",
+        "heatmap": "uploads\\heatmap.png",
+        "report": "uploads\\LungAI_Report.pdf",
+        "date": "08-08-2026",
+        "time": "18:21:19"
+    },
+    {
+        "prediction": "COVID",
+        "confidence": 83.45,
+        "probabilities": [
+            0.8344764709472656,
+            0.0006810700288042426,
+            0.00045843381667509675,
+            0.16438409686088562
+        ],
+        "image": "uploads\\04 img.png",
+        "heatmap": "uploads\\heatmap.png",
+        "report": "uploads\\LungAI_Report.pdf",
+        "date": "08-08-2026",
+        "time": "18:27:42"
+    },
+    {
+        "prediction": "COVID",
+        "confidence": 83.45,
+        "probabilities": [
+            0.834476113319397,
+            0.0006810707272961736,
+            0.00045843428233638406,
+            0.16438451409339905
+        ],
+        "image": "uploads\\04 img.png",
+        "heatmap": "uploads\\heatmap_20260808_213345_4e27b6.png",
+        "report": "uploads\\LungAI_Report_20260808_213345_4e27b6.pdf",
+        "date": "08-08-2026",
+        "time": "21:33:46"
+    }
+]

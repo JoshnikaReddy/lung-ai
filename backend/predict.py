@@ -2,16 +2,28 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import os
+import json
+import uuid
+from datetime import datetime
 
 from utils import preprocess_image
 from gradcam import generate_gradcam
 from report_generator import generate_pdf
 
+
+# ==================================================
 # Load the trained model
+# ==================================================
+
 MODEL_PATH = "../models/final_densenet.keras"
+
 model = tf.keras.models.load_model(MODEL_PATH)
 
+
+# ==================================================
 # Disease classes
+# ==================================================
+
 CLASS_NAMES = [
     "COVID",
     "Normal",
@@ -19,30 +31,56 @@ CLASS_NAMES = [
     "Tuberculosis"
 ]
 
-# Last convolutional layer used for Grad-CAM
+
+# ==================================================
+# Grad-CAM layer
+# ==================================================
+
 LAST_CONV_LAYER_NAME = "conv5_block16_concat"
 
 
-def predict_xray(image_path):
-    """
-    Predict disease from an X-ray image.
-    """
+# ==================================================
+# History file
+# ==================================================
 
+HISTORY_FILE = "history.json"
+
+
+# ==================================================
+# Prediction
+# ==================================================
+
+def predict_xray(image_path):
+
+    # --------------------------------------------------
     # Preprocess image
+    # --------------------------------------------------
+
     image = preprocess_image(image_path)
 
-    # Predict
-    predictions = model.predict(image, verbose=0)
+
+    # --------------------------------------------------
+    # AI prediction
+    # --------------------------------------------------
+
+    predictions = model.predict(
+        image,
+        verbose=0
+    )
 
     predicted_index = np.argmax(predictions)
 
     predicted_class = CLASS_NAMES[predicted_index]
 
-    confidence = float(predictions[0][predicted_index] * 100)
+    confidence = round(
+        float(predictions[0][predicted_index] * 100),
+        2
+    )
 
-    # ==========================
+
+    # --------------------------------------------------
     # Generate Grad-CAM
-    # ==========================
+    # --------------------------------------------------
 
     heatmap = generate_gradcam(
         model,
@@ -50,23 +88,50 @@ def predict_xray(image_path):
         LAST_CONV_LAYER_NAME
     )
 
-    # Read original image
+
+    # --------------------------------------------------
+    # Read original X-ray
+    # --------------------------------------------------
+
     original = cv2.imread(image_path)
 
+    if original is None:
+        raise ValueError(
+            "Unable to read the uploaded X-ray image."
+        )
+
+
+    # --------------------------------------------------
     # Resize heatmap
+    # --------------------------------------------------
+
     heatmap = cv2.resize(
         heatmap,
-        (original.shape[1], original.shape[0])
+        (
+            original.shape[1],
+            original.shape[0]
+        )
     )
 
+
+    # --------------------------------------------------
     # Convert heatmap to color
-    heatmap = np.uint8(255 * heatmap)
+    # --------------------------------------------------
+
+    heatmap = np.uint8(
+        255 * heatmap
+    )
+
     heatmap = cv2.applyColorMap(
         heatmap,
         cv2.COLORMAP_JET
     )
 
-    # Overlay
+
+    # --------------------------------------------------
+    # Overlay heatmap
+    # --------------------------------------------------
+
     overlay = cv2.addWeighted(
         original,
         0.6,
@@ -75,10 +140,34 @@ def predict_xray(image_path):
         0
     )
 
-    # Save heatmap
+
+    # ==================================================
+    # Create UNIQUE filenames
+    # ==================================================
+
+    timestamp = datetime.now().strftime(
+        "%Y%m%d_%H%M%S"
+    )
+
+    unique_id = uuid.uuid4().hex[:6]
+
+
+    heatmap_filename = (
+        f"heatmap_{timestamp}_{unique_id}.png"
+    )
+
+    report_filename = (
+        f"LungAI_Report_{timestamp}_{unique_id}.pdf"
+    )
+
+
+    # ==================================================
+    # Save unique Grad-CAM
+    # ==================================================
+
     heatmap_path = os.path.join(
         "uploads",
-        "heatmap.png"
+        heatmap_filename
     )
 
     cv2.imwrite(
@@ -86,24 +175,104 @@ def predict_xray(image_path):
         overlay
     )
 
-    # ==========================
-    # Generate PDF Report
-    # ==========================
 
-    report_path = generate_pdf(
-        predicted_class,
-        round(confidence, 2),
-        image_path,          # Original X-ray
-        heatmap_path         # Grad-CAM
+    # ==================================================
+    # Generate unique PDF
+    # ==================================================
+
+    report_path = os.path.join(
+        "uploads",
+        report_filename
     )
 
-    # ==========================
-    # Return Response
-    # ==========================
+    generate_pdf(
+        predicted_class,
+        confidence,
+        image_path,
+        heatmap_path,
+        report_path
+    )
+
+
+    # ==================================================
+    # Create history entry
+    # ==================================================
+
+    history_entry = {
+        "prediction": predicted_class,
+        "confidence": confidence,
+        "probabilities": predictions[0].tolist(),
+        "image": image_path,
+        "heatmap": heatmap_path,
+        "report": report_path,
+        "date": datetime.now().strftime(
+            "%d-%m-%Y"
+        ),
+        "time": datetime.now().strftime(
+            "%H:%M:%S"
+        )
+    }
+
+
+    # ==================================================
+    # Read existing history
+    # ==================================================
+
+    if os.path.exists(HISTORY_FILE):
+
+        try:
+
+            with open(
+                HISTORY_FILE,
+                "r"
+            ) as file:
+
+                history = json.load(file)
+
+        except (
+            json.JSONDecodeError,
+            FileNotFoundError
+        ):
+
+            history = []
+
+    else:
+
+        history = []
+
+
+    # ==================================================
+    # Add new record
+    # ==================================================
+
+    history.append(
+        history_entry
+    )
+
+
+    # ==================================================
+    # Save history
+    # ==================================================
+
+    with open(
+        HISTORY_FILE,
+        "w"
+    ) as file:
+
+        json.dump(
+            history,
+            file,
+            indent=4
+        )
+
+
+    # ==================================================
+    # Return result to frontend
+    # ==================================================
 
     return {
         "prediction": predicted_class,
-        "confidence": round(confidence, 2),
+        "confidence": confidence,
         "probabilities": predictions[0].tolist(),
         "heatmap": heatmap_path,
         "report": report_path
