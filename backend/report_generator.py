@@ -1,6 +1,7 @@
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor
+from reportlab.lib.utils import ImageReader
 from datetime import datetime
 import os
 
@@ -13,8 +14,12 @@ def generate_pdf(
     pdf_path
 ):
     """
-    Generate a LungAI PDF report with a unique filename.
+    Generate a professional one-page LungAI PDF report.
     """
+
+    # ==================================================
+    # Create output folder
+    # ==================================================
 
     output_folder = "uploads"
 
@@ -23,6 +28,10 @@ def generate_pdf(
         exist_ok=True
     )
 
+    # ==================================================
+    # Create PDF
+    # ==================================================
+
     c = canvas.Canvas(
         pdf_path,
         pagesize=A4
@@ -30,14 +39,36 @@ def generate_pdf(
 
     width, height = A4
 
+    # ==================================================
+    # Colors
+    # ==================================================
+
+    BLUE = HexColor("#1565C0")
+    GREEN = HexColor("#2E7D32")
+    DARK = HexColor("#222222")
+    GRAY = HexColor("#666666")
+    LIGHT_BLUE = HexColor("#F7FAFF")
+    LIGHT_GREEN = HexColor("#F8FFF8")
+    BORDER_BLUE = HexColor("#1565C0")
+    BORDER_GREEN = HexColor("#2E7D32")
+
+    # ==================================================
+    # Current date / time
+    # ==================================================
+
+    now = datetime.now()
+
+    date_text = now.strftime("%d-%m-%Y")
+    time_text = now.strftime("%H:%M")
+
+    # Unique report ID
+    report_id = "LUNG-" + now.strftime("%Y%m%d%H%M%S")
 
     # ==================================================
     # Header
     # ==================================================
 
-    c.setFillColor(
-        HexColor("#1565C0")
-    )
+    c.setFillColor(BLUE)
 
     c.setFont(
         "Helvetica-Bold",
@@ -46,14 +77,11 @@ def generate_pdf(
 
     c.drawCentredString(
         width / 2,
-        height - 50,
+        height - 40,
         "LungAI"
     )
 
-
-    c.setFillColor(
-        HexColor("#333333")
-    )
+    c.setFillColor(DARK)
 
     c.setFont(
         "Helvetica-Bold",
@@ -62,155 +90,347 @@ def generate_pdf(
 
     c.drawCentredString(
         width / 2,
-        height - 75,
+        height - 63,
         "AI Lung Disease Detection Report"
     )
 
-
-    # ==================================================
-    # Line
-    # ==================================================
-
-    c.setStrokeColor(
-        HexColor("#1565C0")
-    )
-
+    # Header line
+    c.setStrokeColor(BLUE)
     c.setLineWidth(2)
 
     c.line(
         40,
-        height - 90,
+        height - 78,
         width - 40,
-        height - 90
+        height - 78
     )
 
-
     # ==================================================
-    # Report Details
+    # Patient Information Box
     # ==================================================
 
-    c.setFillColor(
-        HexColor("#000000")
+    patient_x = 40
+    patient_y = height - 175
+    patient_w = width - 80
+    patient_h = 72
+
+    c.setFillColor(LIGHT_BLUE)
+    c.setStrokeColor(BORDER_BLUE)
+    c.setLineWidth(2)
+
+    c.roundRect(
+        patient_x,
+        patient_y,
+        patient_w,
+        patient_h,
+        12,
+        fill=1,
+        stroke=1
     )
 
-    c.setFont(
-        "Helvetica",
-        12
-    )
-
-    c.drawString(
-        50,
-        height - 120,
-        f"Generated : {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}"
-    )
-
-
-    # ==================================================
-    # Prediction
-    # ==================================================
-
-    c.setFont(
-        "Helvetica-Bold",
-        16
-    )
-
-    c.drawString(
-        50,
-        height - 155,
-        f"Prediction : {prediction}"
-    )
-
-
-    # ==================================================
-    # Confidence
-    # ==================================================
-
-    c.drawString(
-        50,
-        height - 180,
-        f"Confidence : {confidence}%"
-    )
-
-
-    # ==================================================
-    # Original X-ray
-    # ==================================================
+    # Title
+    c.setFillColor(BLUE)
 
     c.setFont(
         "Helvetica-Bold",
-        16
+        15
     )
 
     c.drawString(
-        50,
-        height - 220,
-        "Original X-ray"
+        patient_x + 15,
+        patient_y + patient_h - 20,
+        "Patient Information"
     )
 
-    if os.path.exists(image_path):
-
-        c.drawImage(
-            image_path,
-            50,
-            height - 500,
-            width=220,
-            height=240,
-            preserveAspectRatio=True,
-            anchor="c"
-        )
-
-
-    # ==================================================
-    # Grad-CAM
-    # ==================================================
-
-    c.drawString(
-        320,
-        height - 220,
-        "Grad-CAM"
-    )
-
-    if os.path.exists(heatmap_path):
-
-        c.drawImage(
-            heatmap_path,
-            320,
-            height - 500,
-            width=220,
-            height=240,
-            preserveAspectRatio=True,
-            anchor="c"
-        )
-
-
-    # ==================================================
-    # Disclaimer
-    # ==================================================
+    # Details
+    c.setFillColor(DARK)
 
     c.setFont(
         "Helvetica",
         9
     )
 
-    c.setFillColor(
-        HexColor("#666666")
+    c.drawString(
+        patient_x + 18,
+        patient_y + 42,
+        f"Report ID : {report_id}"
     )
 
     c.drawString(
-        50,
-        50,
-        "Disclaimer: This AI-generated result is for research and"
+        patient_x + 205,
+        patient_y + 42,
+        f"Date : {date_text}"
     )
 
     c.drawString(
-        50,
-        38,
-        "educational purposes only and should not replace medical advice."
+        patient_x + 410,
+        patient_y + 42,
+        f"Time : {time_text}"
     )
 
+    c.drawString(
+        patient_x + 18,
+        patient_y + 20,
+        "Generated By : LungAI"
+    )
 
     # ==================================================
-    # Save PDF
+    # Risk Level
+    # ==================================================
+
+    confidence_value = float(confidence)
+
+    if confidence_value >= 90:
+        risk_level = "HIGH"
+    elif confidence_value >= 70:
+        risk_level = "MEDIUM"
+    else:
+        risk_level = "LOW"
+
+    # ==================================================
+    # AI Diagnosis Box
+    # ==================================================
+
+    diagnosis_x = 40
+    diagnosis_y = height - 275
+    diagnosis_w = width - 80
+    diagnosis_h = 72
+
+    c.setFillColor(LIGHT_GREEN)
+    c.setStrokeColor(BORDER_GREEN)
+    c.setLineWidth(2)
+
+    c.roundRect(
+        diagnosis_x,
+        diagnosis_y,
+        diagnosis_w,
+        diagnosis_h,
+        12,
+        fill=1,
+        stroke=1
+    )
+
+    # Title
+    c.setFillColor(GREEN)
+
+    c.setFont(
+        "Helvetica-Bold",
+        15
+    )
+
+    c.drawString(
+        diagnosis_x + 15,
+        diagnosis_y + diagnosis_h - 20,
+        "AI Diagnosis"
+    )
+
+    # Disease
+    c.setFillColor(DARK)
+
+    c.setFont(
+        "Helvetica-Bold",
+        10
+    )
+
+    c.drawString(
+        diagnosis_x + 20,
+        diagnosis_y + 40,
+        f"Disease : {prediction}"
+    )
+
+    # Confidence
+    c.drawString(
+        diagnosis_x + 20,
+        diagnosis_y + 20,
+        f"Confidence : {confidence}%"
+    )
+
+    # Risk
+    c.drawString(
+        diagnosis_x + 270,
+        diagnosis_y + 40,
+        f"Risk Level : {risk_level}"
+    )
+
+    # ==================================================
+    # Image Section Titles
+    # ==================================================
+
+    image_title_y = height - 310
+
+    c.setFillColor(BLUE)
+
+    c.setFont(
+        "Helvetica-Bold",
+        13
+    )
+
+    c.drawString(
+        40,
+        image_title_y,
+        "Original Chest X-ray"
+    )
+
+    c.drawString(
+        315,
+        image_title_y,
+        "Grad-CAM Heatmap"
+    )
+
+    # ==================================================
+    # Image settings
+    # ==================================================
+
+    image_width = 220
+    image_height = 175
+
+    image_y = height - 485
+
+    # ==================================================
+    # Draw Original X-ray
+    # ==================================================
+
+    if os.path.exists(image_path):
+
+        try:
+            c.drawImage(
+                ImageReader(image_path),
+                45,
+                image_y,
+                width=image_width,
+                height=image_height,
+                preserveAspectRatio=True,
+                anchor="c",
+                mask="auto"
+            )
+
+        except Exception as e:
+            print(
+                f"Could not add original X-ray to PDF: {e}"
+            )
+
+    # ==================================================
+    # Draw Grad-CAM
+    # ==================================================
+
+    if os.path.exists(heatmap_path):
+
+        try:
+            c.drawImage(
+                ImageReader(heatmap_path),
+                315,
+                image_y,
+                width=image_width,
+                height=image_height,
+                preserveAspectRatio=True,
+                anchor="c",
+                mask="auto"
+            )
+
+        except Exception as e:
+            print(
+                f"Could not add Grad-CAM to PDF: {e}"
+            )
+
+    # ==================================================
+    # AI Explanation
+    # ==================================================
+
+    explanation_y = height - 520
+
+    c.setFillColor(BLUE)
+
+    c.setFont(
+        "Helvetica-Bold",
+        15
+    )
+
+    c.drawString(
+        40,
+        explanation_y,
+        "AI Explanation"
+    )
+
+    # Explanation text
+    c.setFillColor(DARK)
+
+    c.setFont(
+        "Helvetica",
+        9
+    )
+
+    explanation_lines = [
+        f"• The AI model predicts {prediction}.",
+        f"• The confidence score is {confidence}%.",
+        "• The highlighted Grad-CAM regions indicate",
+        "• the areas that contributed most to the prediction.",
+        "• This output is intended to assist clinicians",
+        "• and should not replace professional diagnosis."
+    ]
+
+    line_y = explanation_y - 20
+
+    for line in explanation_lines:
+
+        c.drawString(
+            45,
+            line_y,
+            line
+        )
+
+        line_y -= 15
+
+    # ==================================================
+    # Disclaimer Line
+    # ==================================================
+
+    c.setStrokeColor(
+        HexColor("#BBBBBB")
+    )
+
+    c.setLineWidth(1)
+
+    c.line(
+        40,
+        55,
+        width - 40,
+        55
+    )
+
+    # ==================================================
+    # Disclaimer
+    # ==================================================
+
+    c.setFillColor(GRAY)
+
+    c.setFont(
+        "Helvetica-Oblique",
+        8
+    )
+
+    c.drawCentredString(
+        width / 2,
+        39,
+        "This report is AI-generated and should be reviewed by a qualified radiologist."
+    )
+
+    # ==================================================
+    # Footer
+    # ==================================================
+
+    c.setFont(
+        "Helvetica-Oblique",
+        8
+    )
+
+    c.drawCentredString(
+        width / 2,
+        25,
+        "© LungAI v1.0"
+    )
+
+    # ==================================================
+    # Save
     # ==================================================
 
     c.save()

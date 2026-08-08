@@ -41,7 +41,7 @@ function DashboardLayout() {
           {/* Row 3 */}
           <div className="grid lg:grid-cols-2 gap-8">
             <AIExplanation prediction={prediction} />
-            <ReportCard />
+           <ReportCard prediction={prediction} />
           </div>
 
         </main>

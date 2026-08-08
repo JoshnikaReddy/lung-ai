@@ -274,6 +274,13 @@ def predict_xray(image_path):
         "prediction": predicted_class,
         "confidence": confidence,
         "probabilities": predictions[0].tolist(),
+
+        # Original X-ray
+        "image": image_path,
+
+        # Grad-CAM
         "heatmap": heatmap_path,
+
+        # PDF report
         "report": report_path
     }

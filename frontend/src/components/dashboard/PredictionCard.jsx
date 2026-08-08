@@ -1,8 +1,8 @@
-import { FaHeartbeat } from "react-icons/fa";
+import { FaHeartbeat, FaFilePdf } from "react-icons/fa";
 
 function PredictionCard({ prediction }) {
   const disease = prediction?.prediction || "No Prediction";
-  const confidence = prediction?.confidence || "0.00";
+  const confidence = prediction?.confidence ?? 0;
 
   let risk = "Low";
   let riskColor = "text-green-600";
@@ -18,16 +18,50 @@ function PredictionCard({ prediction }) {
     riskBg = "bg-yellow-50";
   }
 
+
+  // Open the generated PDF report
+  const handleReport = () => {
+    if (!prediction?.report) {
+      alert("Please analyze an X-ray first.");
+      return;
+    }
+
+    const reportUrl =
+      `http://127.0.0.1:8000/${prediction.report}`;
+
+    window.open(
+      reportUrl,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
+
   return (
-    <div className="bg-white rounded-2xl shadow-md p-8 h-full">
-      <h2 className="text-2xl font-bold mb-6">
-        AI Prediction
-      </h2>
+    <div className="bg-white rounded-2xl shadow-lg p-8">
+
+      {/* Header */}
+
+      <div className="flex items-center gap-3 mb-6">
+
+        <FaFilePdf
+          className="text-blue-600"
+          size={24}
+        />
+
+        <h2 className="text-2xl font-bold">
+          AI Prediction
+        </h2>
+
+      </div>
+
 
       <div className="space-y-6">
 
         {/* Disease */}
+
         <div className="bg-blue-50 rounded-xl p-5">
+
           <p className="text-gray-500 text-sm">
             Predicted Disease
           </p>
@@ -35,42 +69,71 @@ function PredictionCard({ prediction }) {
           <h3 className="text-3xl font-bold text-blue-600 mt-2">
             {disease}
           </h3>
+
         </div>
 
+
         {/* Confidence */}
+
         <div className="bg-green-50 rounded-xl p-5">
+
           <p className="text-gray-500 text-sm">
             Confidence
           </p>
 
           <h3 className="text-3xl font-bold text-green-600 mt-2">
-            {confidence}%
+            {Number(confidence).toFixed(2)}%
           </h3>
+
         </div>
 
+
         {/* Risk */}
-        <div className={`${riskBg} rounded-xl p-5 flex items-center gap-4`}>
+
+        <div
+          className={`${riskBg} rounded-xl p-5 flex items-center gap-4`}
+        >
+
           <FaHeartbeat
             size={35}
             className={riskColor}
           />
 
           <div>
+
             <p className="text-gray-500 text-sm">
               Risk Level
             </p>
 
-            <h3 className={`text-xl font-bold ${riskColor}`}>
+            <h3
+              className={`text-xl font-bold ${riskColor}`}
+            >
               {risk}
             </h3>
+
           </div>
+
         </div>
 
-        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition">
-          View Detailed Report
+
+        {/* Detailed Report */}
+
+        <button
+          onClick={handleReport}
+          disabled={!prediction?.report}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 rounded-xl transition flex items-center justify-center gap-3"
+        >
+
+          <FaFilePdf />
+
+          {prediction?.report
+            ? "View Detailed Report"
+            : "Analyze X-ray First"}
+
         </button>
 
       </div>
+
     </div>
   );
 }
