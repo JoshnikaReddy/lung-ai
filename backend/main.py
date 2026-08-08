@@ -65,6 +65,7 @@ app.mount(
 
 @app.get("/")
 def home():
+
     return {
         "message": "LungAI Backend Running"
     }
@@ -75,7 +76,9 @@ def home():
 # ==================================================
 
 @app.post("/predict")
-async def predict(file: UploadFile = File(...)):
+async def predict(
+    file: UploadFile = File(...)
+):
 
     # Save uploaded image
     file_path = os.path.join(
@@ -93,19 +96,22 @@ async def predict(file: UploadFile = File(...)):
             buffer
         )
 
+
     # Run prediction
     result = predict_xray(
         file_path
     )
 
+
     # Print prediction in terminal
     print(result)
+
 
     return result
 
 
 # ==================================================
-# History API
+# History API - GET
 # ==================================================
 
 @app.get("/history")
@@ -113,6 +119,7 @@ def get_history():
 
     # If history file doesn't exist
     if not os.path.exists(HISTORY_FILE):
+
         return []
 
 
@@ -125,9 +132,38 @@ def get_history():
 
             history = json.load(file)
 
+
         return history
 
 
-    except (json.JSONDecodeError, FileNotFoundError):
+    except (
+        json.JSONDecodeError,
+        FileNotFoundError
+    ):
 
         return []
+
+
+# ==================================================
+# History API - DELETE
+# ==================================================
+
+@app.delete("/history")
+def clear_history():
+
+    # Clear history file
+    with open(
+        HISTORY_FILE,
+        "w"
+    ) as file:
+
+        json.dump(
+            [],
+            file,
+            indent=4
+        )
+
+
+    return {
+        "message": "Prediction history cleared successfully."
+    }
